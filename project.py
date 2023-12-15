@@ -34,3 +34,14 @@ for row in column_data[1:]:
 
 print(df)
 df.to_csv(r"C:\Users\Lukas\Desktop\Python-output\Companies.csv", index = False)
+
+# TODO zjistit tabulku na webu voleb - https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=12&xnumnuts=7103
+
+# TODO argument se kterym je spusten program je x na okresnich mestech viz odkaz
+
+# TODO zjistit tabulku <td class="center" headers="t1sa2"><a href="https://volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=12&xobec=506761&xvyber=7103">
+
+# TODO <ts class="cislo"header="s1"><a href="https://volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=12&xobec=589276&xokrsek=1&xvyber=7103">
+
+# TODO If je obsazeno <th colspan="2" id="s1">Okrsek</th>, pak delej prohledani v zanorenych webech
+# TODO jestlize neni, tak hledej v aktualnim
