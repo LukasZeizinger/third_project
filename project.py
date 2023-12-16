@@ -5,43 +5,80 @@ import requests
 import pandas as pd
 
 
-url = "https://en.wikipedia.org/wiki/List_of_largest_companies_in_the_United_States_by_revenue"
+url = "https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=12&xnumnuts=7103"
 
 page = requests.get(url)
 
 soup = BeautifulSoup(page.text, "html")
 
 
-table = soup.find_all("table")[1]
+mydivs = soup.find_all('a', href=True)
+key_string = "kraj"
+key_string_direct = "xvyber"
+#print(mydivs)
 
-world_titles = table.find_all("th")
+
+lib_url = []
+
+for a in mydivs:
+    
+    if (a['href']) in lib_url:
+        pass
+    elif key_string in str(a):
+        
+        if key_string_direct in str(a):
+            lib_url.append(str(a['href']))
+
+        else:
+            url_temp = "https://volby.cz/pls/ps2017nss/" + str(a['href'])
+            page_temp = requests.get(url_temp)
+            soup_temp = BeautifulSoup(page_temp.text, "html")
+            print("Search for ", url_temp)
+            mydivs_temp = soup_temp.find_all('a', href=True)
+            
+
+            for b in mydivs_temp:
+
+                if (b['href']) in lib_url:
+                    pass
+                elif key_string in str(b) and key_string_direct in str(b) and (b['href']) not in lib_url:
+                    lib_url.append(str(b['href']))
+                                 
+    else:
+        pass
+
+print("All URL was downloaded")
+
+for x in lib_url:
+    url_temp = "https://volby.cz/pls/ps2017nss/" + str(x)
+    page_temp = requests.get(url_temp)
+    soup_temp = BeautifulSoup(page_temp.text, "html")
+    print("Download data from: ", url_temp)
+
+    mydivs_temp = soup_temp.find_all('a')
+        
+    world_titles = mydivs_temp.find_all("a")
 
 world_table_titles = [title.text.strip() for title in world_titles]
-#print(world_table_titles)
-#3<table class="wikitable sortable jquery-tablesorter">
+print(world_table_titles)
+#<table class="wikitable sortable jquery-tablesorter">
 #<caption>
 
-df = pd.DataFrame(columns=world_table_titles)
+#df = pd.DataFrame(columns=world_table_titles)
 
-column_data = table.find_all("tr")
+#column_data = table.find_all("tr")
 
-for row in column_data[1:]:
-    row_data = row.find_all("td")
-    individual_row_data = [data.text.strip() for data in row_data]
-    lenght = len(df)
+#for row in column_data[1:]:
+#    row_data = row.find_all("td")
+#    individual_row_data = [data.text.strip() for data in row_data]
+#    lenght = len(df)
 
-    df.loc[lenght] = individual_row_data
+#    df.loc[lenght] = individual_row_data
 
-print(df)
-df.to_csv(r"C:\Users\Lukas\Desktop\Python-output\Companies.csv", index = False)
+#print(df)
+#df.to_csv(r"C:\Users\Lukas\Desktop\Python-output\Companies.csv", index = False)
 
-# TODO zjistit tabulku na webu voleb - https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=12&xnumnuts=7103
+#prostejov
+#https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=12&xnumnuts=7103
 
-# TODO argument se kterym je spusten program je x na okresnich mestech viz odkaz
 
-# TODO zjistit tabulku <td class="center" headers="t1sa2"><a href="https://volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=12&xobec=506761&xvyber=7103">
-
-# TODO <ts class="cislo"header="s1"><a href="https://volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=12&xobec=589276&xokrsek=1&xvyber=7103">
-
-# TODO If je obsazeno <th colspan="2" id="s1">Okrsek</th>, pak delej prohledani v zanorenych webech
-# TODO jestlize neni, tak hledej v aktualnim
