@@ -3,8 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
 
-#URL = "https://volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=12&xobec=506761&xvyber=7103"
-#URL = "https://volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=12&xobec=589250&xvyber=7103"
+
 URL = "https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=12&xnumnuts=7103"
 
 d_m_w_local_data = []
@@ -92,7 +91,8 @@ def _url_creator(ID_city):
     for a in ID_city[0]:
         counter += 1
         url_temp = "https://volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=12&xobec=" + str(a) + "&xvyber=7103"
-        print(counter, url_temp)
+        print("Progress {:2}/".format(counter),len(ID_city[0]), end="\r")
+        #print(counter, url_temp, end="\r")
         dfl.append(download_data(url_temp))
     
     df2 = pd.DataFrame(np.array(dfl))
