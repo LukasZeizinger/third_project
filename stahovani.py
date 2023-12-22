@@ -113,28 +113,29 @@ def _dframe(main_data, column2, column1):
     """Transpose the Info(ID and name) data, then merge 
     Info data together with dataframe. Output is dataframe."""
     df = main_data
-    df1 = pd.DataFrame(np.array(df.transpose()), columns=column1)
-    #print(dft)
+    tt = df.transpose()
+    df1 = pd.DataFrame(np.array(tt), columns = column1[0])
+
+    
     df2 = _url_creator(d_loc_data, column2)
-    #print(df2)
+    
     result_frame = pd.concat([df1, df2], axis=1)
     
-    return (result_frame)
+    return result_frame
 
 def _find_titles_lvl_1(html):
     """Separate soup and find title on level-1 page and process it. 
-    Then add information to output. Output is title-data."""
-    soup = BeautifulSoup(html, features="html.parser")
+    Then add informatin to output. Output is title-data."""
+    soup = BeautifulSoup(html,features="html.parser")
     
-    title_ids = ["t1sb1", "t1sb2"]
-    title_classes = ["fixed45", "fixed150"]
+
+    ingredience = soup.find_all(id="t1sb1", class_="fixed45")
+    _title_1 = [data.text.strip() for data in ingredience]
+    ingredience = soup.find_all(id="t1sb2", class_="fixed150")
+    _title_2 = [data.text.strip() for data in ingredience]
     
-    ingredience_title = []
-
-    for title_id, title_class in zip(title_ids, title_classes):
-        ingredience = soup.find_all(id=title_id, class_=title_class)
-        ingredience_title.extend([data.text.strip() for data in ingredience])
-
+    ingredience_title = _title_1 + _title_2
+    
     return ingredience_title
 
 def _title_url(ID_city):
