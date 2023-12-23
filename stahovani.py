@@ -1,18 +1,42 @@
+# importing the module 
+import sys 
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
 from urllib.parse import urlparse, parse_qs
+import os
 
+# storing the arguments 
 
+#URL = sys.argv[0] 
+#URL = "https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2101"
 
-URL = "https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=1&xnumnuts=1100"
+# fetching the arguments 
+area_link = sys.argv[1] 
+output_file = sys.argv[2] 
+
+  
 url_parts = []
 d_loc_data = []
 title_data = []
 meta_url = []
 dflocal = []
 url_title = []
+
+# function definition 
+def concat(s1, s2):
+    """Check if the correct number of arguments is provided"""
+    if len(sys.argv) != 3:
+        print("Usage: python script_name.py 'area_link' 'output_file.csv'")
+        sys.exit(1) 
+    elif "https://volby.cz/pls/ps2017nss/" not in s1:
+        print("Usage: python script_name.py 'area_link(in shape https://volby.cz/pls/ps2017nss...)' 'output_file.csv'")
+        sys.exit(1) 
+
+    print(s1 + " " + s2)
+
+
 
 def _find_topic_data(html):
     """Separate soup and find registred votes and process it. 
@@ -189,26 +213,58 @@ def _strip_url(www):
     url_parts.append(xnumnuts_value)
     return
 
-def dwn_main_webpage(www):
+def dwn_main_webpage(www, output_file):
     """Raise for status www page and start up process 
     to find ID, name, titles and data. After collecting data 
     prepare lists to merge."""
     while True:
         task = requests.get(www)
         task.raise_for_status()
+        # Assuming _strip_url is defined somewhere
         _strip_url(www)
         
         d_loc_data.append(_find_ID(task.text))      
         d_loc_data.append(_find_name(task.text))
         title_data.append(_find_titles_lvl_1(task.text))
 
-        d_f = _dframe((pd.DataFrame(np.array(d_loc_data))),_title_url((d_loc_data[0][0])), title_data)
-        print(d_f)
-        d_f.to_csv(r"C:\Users\Lukas\Desktop\Python-output\volby.csv", index = False)
+        # Assuming _dframe and _title_url are defined somewhere
+        d_f = _dframe(pd.DataFrame(np.array(d_loc_data)), _title_url(d_loc_data[0][0]), title_data)
+        #print(d_f)
+        
+        # Create the directory if it doesn't exist
+        # Get the directory of the script
+        script_directory = os.path.dirname(os.path.abspath(__file__))
+
+        # Create the directory if it doesn't exist
+        output_directory = os.path.join(script_directory, "Python-output")
+
+        os.makedirs(output_directory, exist_ok=True)
+        
+        # Use os.path.join to construct the file path
+        output_path = os.path.join(script_directory, str(output_file))
+
+        
+        # Use to_csv with the updated path
+        d_f.to_csv(output_path, index=False)
         break
 
 if __name__ == "__main__":
-
-    dwn_main_webpage(URL)
+    # Ensure output_file is assigned the correct value
+    #output_file = output_file
     
+    # calling the function 
+    concat(area_link, output_file)
+    dwn_main_webpage(area_link, output_file)
+   
 
+
+
+  
+ 
+
+
+
+  
+
+
+  
