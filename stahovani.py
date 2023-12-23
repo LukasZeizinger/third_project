@@ -9,14 +9,9 @@ import os
 
 # storing the arguments 
 
-#URL = sys.argv[0] 
-#URL = "https://volby.cz/pls/ps2017nss/ps32?xjazyk=CZ&xkraj=2&xnumnuts=2101"
-
-# fetching the arguments 
+# arguments 
 area_link = sys.argv[1] 
-output_file = sys.argv[2] 
-
-  
+output_file = sys.argv[2]  
 url_parts = []
 d_loc_data = []
 title_data = []
@@ -31,12 +26,13 @@ def concat(s1, s2):
         print("Usage: python script_name.py 'area_link' 'output_file.csv'")
         sys.exit(1) 
     elif "https://volby.cz/pls/ps2017nss/" not in s1:
-        print("Usage: python script_name.py 'area_link(in shape https://volby.cz/pls/ps2017nss...)' 'output_file.csv'")
+        print(
+            "Usage: python script_name.py 'area_link(in shape https://volby"\
+            ".cz/pls/ps2017nss...)' 'output_file.csv'"
+            )
         sys.exit(1) 
 
     print(s1 + " " + s2)
-
-
 
 def _find_topic_data(html):
     """Separate soup and find registred votes and process it. 
@@ -57,13 +53,13 @@ def _find_table_data(html):
     Output is table data - votes data."""
     soup = BeautifulSoup(html, features="html.parser")
     header_classes = ["t1sb3", "t2sb3"]
-    ingredience_table_data = []
+    ingre_table_data = []
 
     for header_class in header_classes:
         ingredience = soup.find_all(class_="cislo", headers=header_class)
-        ingredience_table_data.extend([data.text.strip() for data in ingredience])
+        ingre_table_data.extend([data.text.strip() for data in ingredience])
 
-    return ingredience_table_data
+    return ingre_table_data
 
 def flatten_extend(matrix):
     """Uniforming list of row data. 
@@ -95,26 +91,26 @@ def _find_ID(html):
     """Separate soup and find ID and process it. Output is ID data."""
     soup = BeautifulSoup(html, features="html.parser")
     header_classes = ["t1sa1", "t2sa1", "t3sa1"]
-    ingredience_data_ID = []
+    ingre_data_ID = []
 
     for header_class in header_classes:
         ingredience = soup.find_all(class_="cislo", headers=header_class)
-        ingredience_data_ID.extend([data.text.strip() for data in ingredience])
+        ingre_data_ID.extend([data.text.strip() for data in ingredience])
 
-    return ingredience_data_ID
+    return ingre_data_ID
 
 def _find_name(html):
     """Separate soup and find name of city and process it.
     Output is list of city's name."""
     soup = BeautifulSoup(html, features="html.parser")
     header_classes = ["t1sa1", "t2sa1", "t3sa1"]
-    ingredience_data_name = []
+    ingre_data_name = []
 
     for header_class in header_classes:
-        ingredience = soup.find_all(class_="overflow_name", headers=header_class)
-        ingredience_data_name.extend([data.text.strip() for data in ingredience])
+        ingre = soup.find_all(class_="overflow_name", headers=header_class)
+        ingre_data_name.extend([data.text.strip() for data in ingre])
 
-    return ingredience_data_name
+    return ingre_data_name
 
 def _url_creator(ID_city,column):
     """For each ID is creating unique URL 
@@ -125,7 +121,9 @@ def _url_creator(ID_city,column):
     dfl = []
     for a in ID_city[0]:
         counter += 1
-        url_temp = base_url + str(url_parts[0]) + "&xobec=" + str(a) + "&xvyber=" + str(url_parts[1])
+        url_temp = (
+            base_url + str(url_parts[0]) +
+              "&xobec=" + str(a) + "&xvyber=" + str(url_parts[1]))
         
         print("Progress {:2}/".format(counter),len(ID_city[0]), end="\r")
         dfl.append(download_data(url_temp))
@@ -167,7 +165,9 @@ def _title_url(ID_city):
     and then call data_mining. Here is printing load sequence.
     Output is dataframe 2."""
     base_url = "https://volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj="
-    url_temp = base_url + str(url_parts[0]) + "&xobec=" + ID_city + "&xvyber=" + str(url_parts[1])
+    url_temp = (
+        base_url + str(url_parts[0]) + "&xobec=" +
+          ID_city + "&xvyber=" + str(url_parts[1]))
     task = requests.get(url_temp)
     task.raise_for_status()
     
@@ -187,12 +187,12 @@ def _find_titles_lvl_2(html):
     ingr_title_data = []
 
     for title_id in title_ids:
-        ingredience = soup.find_all(id=title_id)
-        ingr_title_data.extend([data.text.strip() for data in ingredience])
+        ingre = soup.find_all(id=title_id)
+        ingr_title_data.extend([data.text.strip() for data in ingre])
 
     for title_class, title_header in zip(title_classes, title_headers):
-        ingredience = soup.find_all(class_=title_class, headers=title_header)
-        ingr_title_data.extend([data.text.strip() for data in ingredience])
+        ingre = soup.find_all(class_=title_class, headers=title_header)
+        ingr_title_data.extend([data.text.strip() for data in ingre])
 
     return ingr_title_data
 
@@ -228,7 +228,8 @@ def dwn_main_webpage(www, output_file):
         title_data.append(_find_titles_lvl_1(task.text))
 
         # Assuming _dframe and _title_url are defined somewhere
-        d_f = _dframe(pd.DataFrame(np.array(d_loc_data)), _title_url(d_loc_data[0][0]), title_data)
+        d_f = (_dframe(pd.DataFrame(np.array(d_loc_data)), 
+                _title_url(d_loc_data[0][0]), title_data))
         #print(d_f)
         
         # Create the directory if it doesn't exist
@@ -246,6 +247,8 @@ def dwn_main_webpage(www, output_file):
         
         # Use to_csv with the updated path
         d_f.to_csv(output_path, index=False)
+        print("Thx for using, all is done and file", output_file, "is "\
+               "prepared.")
         break
 
 if __name__ == "__main__":
@@ -255,16 +258,3 @@ if __name__ == "__main__":
     # calling the function 
     concat(area_link, output_file)
     dwn_main_webpage(area_link, output_file)
-   
-
-
-
-  
- 
-
-
-
-  
-
-
-  
